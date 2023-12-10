@@ -1,0 +1,18 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "media-stack.fullname" . }}-config
+  namespace: {{ .Values.global.namespace }}
+{{- with .Values.global.storage.annotations  }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+  labels:
+    {{- include "media-stack.labels" (merge (dict "name" "pvc") $) | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.global.storage.storageClassName}}
+  accessModes:
+    - {{ .Values.global.storage.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.global.storage.size | quote }}

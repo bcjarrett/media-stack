@@ -1,0 +1,21 @@
+{{- $enabledApps := include "media-stack.enabledApps" . | splitList "," }}
+{{- range $app := $enabledApps }}
+{{- $ctx := (merge (dict "name" $app) $) }}
+{{- $fullName := include "media-stack.app.fullname" $ctx }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "media-stack.labels" $ctx | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ index $ctx.Values $app "port" }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "media-stack.selectorLabels" $ctx | nindent 4 }}
+{{- end}}

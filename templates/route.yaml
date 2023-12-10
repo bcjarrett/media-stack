@@ -1,0 +1,36 @@
+{{- if eq .Values.global.route.enabled true }}
+{{- $enabledApps := include "media-stack.enabledApps" . | splitList "," }}
+{{- range $app := $enabledApps }}
+{{- $ctx := (merge (dict "name" $app) $) }}
+{{- $fullName := include "media-stack.app.fullname" $ctx }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "media-stack.labels" $ctx | nindent 4 }}
+  {{- with $ctx.Values.global.route.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  host: "{{- include "media-stack.app.host" $ctx }}"
+  path: "/"
+  wildcardPolicy: {{ $ctx.Values.global.route.wildcardPolicy }}
+  port:
+    targetPort: {{ $ctx.Values.global.route.service.targetPort }}
+{{- if $ctx.Values.global.route.tls.enabled }}
+  tls:
+{{- with $ctx.Values.global.route.tls }}
+    termination: {{ .termination }}
+    insecureEdgeTerminationPolicy: {{ .insecureEdgeTerminationPolicy }}
+{{- end}}
+{{- end }}
+  to:
+    kind: Service
+    name: {{ $fullName }}
+    weight: {{ $ctx.Values.global.route.service.weight }}
+{{ include "chart.helmRouteFix" . }}
+{{- end}}
+{{- end}}

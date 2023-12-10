@@ -1,0 +1,161 @@
+# These values are all shared across the different services
+global:
+  namespace: "media-stack"
+
+  timezone: &tz ""
+  puid: &puid "1026"
+  pgid: &pgid "101"
+
+  serviceAccount:
+    create: true
+    name: ""
+    annotations: { }
+
+  fullnameOverride: ""
+  imagePullSecrets: [ ]
+
+  # Shared storage for configuration files
+  storage:
+    storageClassName: ""
+    accessMode: ReadWriteOnce
+    annotations: ""
+    size: "10Gi"
+
+  # Shared storage for media files
+  mediaStorage:
+    nfs:
+      server: ""
+      path: ""
+
+  route:
+    enabled: false
+    host: ""
+    wildcardPolicy: None
+    annotations:
+      cert-manager.io/issuer-kind: ""
+      cert-manager.io/issuer-name: ""
+    tls:
+      enabled: true
+      termination: "edge"
+      insecureEdgeTerminationPolicy: "None"
+    service:
+      targetPort: http
+      weight: 100
+
+  ingress:
+    enabled: false
+    host: ""
+
+  podAnnotations: { }
+
+  podSecurityContext: { }
+  securityContext: { }
+
+  nodeSelector: { }
+  tolerations: [ ]
+  affinity: { }
+
+bazarr:
+  enabled: true
+  replicaCount: 1
+  port: '6767'
+  image:
+    repository: linuxserver/bazarr
+    pullPolicy: IfNotPresent
+    tag: "1.2.4"
+
+  env:
+    - name: TZ
+      value: *tz
+    - name: PUID
+      value: *puid
+    - name: PGID
+      value: *pgid
+    - name: UMASK_SET
+      value: "022"
+    - name: UMASK
+      value: "022"
+
+  resources: {}
+#    limits:
+#      cpu: 500m
+#      memory: 256Mi
+#    requests:
+#      cpu: 250m
+#      memory: 256Mi
+
+overseerr:
+  enabled: true
+  replicaCount: 1
+  port: "5055"
+
+  image:
+    repository: sctx/overseerr
+    pullPolicy: IfNotPresent
+    tag: "1.33.0"
+
+  env:
+    - name: TZ
+      value: *tz
+    - name: LOG_LEVEL
+      value: debug
+
+  resources: {}
+#    limits:
+#      cpu: 500m
+#      memory: 256Mi
+#    requests:
+#      cpu: 250m
+#      memory: 256Mi
+
+radarr:
+  enabled: true
+  replicaCount: 1
+  port: '7878'
+
+  image:
+    repository: linuxserver/radarr
+    pullPolicy: IfNotPresent
+    tag: "4.6.4"
+
+  env:
+    - name: TZ
+      value: *tz
+    - name: PUID
+      value: *puid
+    - name: PGID
+      value: *pgid
+
+  resources: {}
+#    limits:
+#      cpu: 1
+#      memory: 1Gi
+#    requests:
+#      cpu: 500m
+#      memory: 512Mi
+
+sonarr:
+  enabled: true
+  replicaCount: 1
+  port: '8989'
+
+  image:
+    repository: linuxserver/sonarr
+    pullPolicy: IfNotPresent
+    tag: "3.0.10"
+
+  env:
+    - name: TZ
+      value: *tz
+    - name: PUID
+      value: *puid
+    - name: PGID
+      value: *pgid
+
+  resources: {}
+#    limits:
+#      cpu: 1000m
+#      memory: 1Gi
+#    requests:
+#      cpu: 500m
+#      memory: 512Mi
